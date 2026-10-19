@@ -17,10 +17,10 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when:** tests pass.
 
 ## Phase 2 — Wallet + XMTP client
-- [ ] `lib/wagmi.ts` (injected + Coinbase Wallet, mainnet transport for ENS, `ssr: true`).
-- [ ] `app/providers.tsx`, wire in `app/layout.tsx`.
-- [ ] `hooks/useXmtp.tsx` per ARCHITECTURE §5 (explicit `init()`, teardown on account change).
-- [ ] `components/ConnectBar.tsx`: connect buttons, address, Enable messaging, status/error, disconnect.
+- [x] `lib/wagmi.ts` (injected + Coinbase Wallet, mainnet transport for ENS, `ssr: true`).
+- [x] `app/providers.tsx`, wire in `app/layout.tsx`.
+- [x] `hooks/useXmtp.tsx` per ARCHITECTURE §5 (explicit `init()`, teardown on account change).
+- [x] `components/ConnectBar.tsx`: connect buttons, address, Enable messaging, status/error, disconnect.
 - **Done when (AC-1, FR-1..5):** connect → single signature → "ready"; reload behavior verified and documented in XMTP_NOTES; switching account resets.
 
 ## Phase 3 — Contacts
