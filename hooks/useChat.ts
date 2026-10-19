@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ConsentState } from "@xmtp/browser-sdk";
 import type {
   AsyncStreamProxy,
   Client,
@@ -12,8 +13,8 @@ import {
   isAppPayload,
   normalizeCode,
 } from "@/lib/codec";
-import { createDM, peerInboxOf, VISIBLE } from "@/lib/xmtp";
-import type { Address, AppPayload, ChatItem, FeedbackCategory } from "@/lib/types";
+import { consentOf, createDM, peerInboxOf, setConsent, VISIBLE } from "@/lib/xmtp";
+import type { Address, AppPayload, ChatItem, ChatRequest, FeedbackCategory } from "@/lib/types";
 
 /** Pure selector: group chat items by code, sorted by last activity. */
 export function codesFor(list: ChatItem[]) {
@@ -41,30 +42,51 @@ export function effectiveFeedback(list: ChatItem[], code: string) {
 
 export function useChat(client: Client | null) {
   const [items, setItems] = useState<Map<string, ChatItem>>(new Map());
+  const [requests, setRequests] = useState<Map<string, ChatRequest>>(new Map());
   const counter = useRef(0);
   const recipientById = useRef<Map<string, Address>>(new Map());
-  const peerCache = useRef(new Map<string, string>());
+  // conversationId -> { peerInboxId, consent }
+  const convCache = useRef(new Map<string, { peerInboxId: string; consent: ConsentState }>());
 
   // ---- ingest: validate, resolve peer, dedupe, map to ChatItem ----
   const ingest = useCallback(
     async (m: DecodedMessage) => {
       if (!client) return;
       if (!contentTypesAreEqual(m.contentType, ContentTypeChatCode)) return;
-      if (!isAppPayload(m.content)) return;
-      let peer = peerCache.current.get(m.conversationId);
-      if (!peer) {
-        peer = await peerInboxOf(client, m.conversationId);
-        if (!peer) return;
-        peerCache.current.set(m.conversationId, peer);
+      const content = m.content;
+      if (!isAppPayload(content)) return;
+      let entry = convCache.current.get(m.conversationId);
+      if (!entry) {
+        const peerInboxId = await peerInboxOf(client, m.conversationId);
+        if (!peerInboxId) return;
+        const consent = await consentOf(client, peerInboxId);
+        entry = { peerInboxId, consent };
+        convCache.current.set(m.conversationId, entry);
       }
+      const peer = entry.peerInboxId;
       const item: ChatItem = {
         id: m.id,
         peerInboxId: peer,
         mine: m.senderInboxId === client.inboxId,
         sentAt: Number(m.sentAtNs) / 1000000,
-        payload: m.content,
+        payload: content,
       };
       setItems((prev) => (prev.has(item.id) ? prev : new Map(prev).set(item.id, item)));
+      // Unknown consent => inbound request, surfaced separately (FR-21).
+      if (entry.consent === ConsentState.Unknown) {
+        setRequests((prev) => {
+          const next = new Map(prev);
+          const cur = next.get(peer);
+          next.set(peer, {
+            peerInboxId: peer,
+            conversationId: m.conversationId,
+            preview: content.kind === "feedback" ? `Feedback ${content.score}/5` : content.text,
+            at: Math.max(cur?.at ?? 0, item.sentAt),
+            count: (cur?.count ?? 0) + 1,
+          });
+          return next;
+        });
+      }
     },
     [client],
   );
@@ -73,7 +95,9 @@ export function useChat(client: Client | null) {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(new Map());
-    peerCache.current.clear();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRequests(new Map());
+    convCache.current.clear();
     if (!client) return;
     let stream: AsyncStreamProxy<DecodedMessage> | undefined;
     let cancelled = false;
@@ -231,5 +255,41 @@ export function useChat(client: Client | null) {
     [items],
   );
 
-  return { items, sendText, sendFeedback, retry, forPeer };
+  // ---- request moderation (FR-21) ----
+  const acceptRequest = useCallback(
+    async (peerInboxId: string) => {
+      if (!client) throw new Error("XMTP client not ready");
+      await setConsent(client, peerInboxId, ConsentState.Allowed);
+      setRequests((prev) => {
+        const next = new Map(prev);
+        next.delete(peerInboxId);
+        return next;
+      });
+    },
+    [client],
+  );
+
+  const blockRequest = useCallback(
+    async (peerInboxId: string) => {
+      if (!client) throw new Error("XMTP client not ready");
+      await setConsent(client, peerInboxId, ConsentState.Denied);
+      setRequests((prev) => {
+        const next = new Map(prev);
+        next.delete(peerInboxId);
+        return next;
+      });
+    },
+    [client],
+  );
+
+  return {
+    items,
+    requests: [...requests.values()].sort((a, b) => b.at - a.at),
+    sendText,
+    sendFeedback,
+    retry,
+    forPeer,
+    acceptRequest,
+    blockRequest,
+  };
 }

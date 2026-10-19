@@ -5,11 +5,13 @@ import { ContactManager } from "@/components/ContactManager";
 import { ChatCodeSwitcher } from "@/components/ChatCodeSwitcher";
 import { MessagePanel } from "@/components/MessagePanel";
 import { DeepLinkPrompt } from "@/components/DeepLinkPrompt";
+import { RequestsDrawer } from "@/components/RequestsDrawer";
 import { useXmtp } from "@/hooks/useXmtp";
 import { useContacts } from "@/hooks/useContacts";
 import { useChat, codesFor } from "@/hooks/useChat";
 import { isValidCode } from "@/lib/codec";
-import type { Address, ChatItem, Contact, FeedbackCategory } from "@/lib/types";
+import { addressOfInbox } from "@/lib/xmtp";
+import type { Address, ChatItem, ChatRequest, Contact, FeedbackCategory } from "@/lib/types";
 
 export default function Page() {
   const { client, status, error: xmtpError } = useXmtp();
@@ -19,7 +21,7 @@ export default function Page() {
   const [activeContact, setActiveContact] = useState<Contact | undefined>(undefined);
   const [activeCode, setActiveCode] = useState<string>("GENERAL");
 
-  const { items, sendText, sendFeedback, retry } = useChat(client);
+  const { items, requests, sendText, sendFeedback, retry, acceptRequest, blockRequest } = useChat(client);
 
   const handleConfirmDeepLink = useCallback(
     (peer?: Address, code?: string) => {
@@ -69,6 +71,41 @@ export default function Page() {
     [retry],
   );
 
+  const handleAcceptRequest = useCallback(
+    async (request: ChatRequest) => {
+      await acceptRequest(request.peerInboxId);
+    },
+    [acceptRequest],
+  );
+
+  const handleAcceptAndAddRequest = useCallback(
+    async (request: ChatRequest) => {
+      await acceptRequest(request.peerInboxId);
+      if (!client) return;
+      try {
+        const address = await addressOfInbox(client, request.peerInboxId);
+        if (address) {
+          upsert({
+            address,
+            alias: `${address.slice(0, 6)}…${address.slice(-4)}`,
+            reachable: true,
+            inboxId: request.peerInboxId,
+          });
+        }
+      } catch {
+        // resolving the address is best-effort; the request is still accepted
+      }
+    },
+    [acceptRequest, client, upsert],
+  );
+
+  const handleBlockRequest = useCallback(
+    async (request: ChatRequest) => {
+      await blockRequest(request.peerInboxId);
+    },
+    [blockRequest],
+  );
+
   if (!hydrated) {
     return <div className="p-4 text-center text-sm text-gray-500">Loading…</div>;
   }
@@ -105,6 +142,12 @@ export default function Page() {
               onRetry={handleRetry}
             />
           </main>
+          <RequestsDrawer
+            requests={requests}
+            onAccept={handleAcceptRequest}
+            onAcceptAndAdd={handleAcceptAndAddRequest}
+            onBlock={handleBlockRequest}
+          />
         </div>
       )}
       <Suspense fallback={null}>

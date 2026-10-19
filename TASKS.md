@@ -49,7 +49,7 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when (AC-3, AC-4, AC-8, FR-12..17, 20):** per-code organization works end-to-end.
 
 ## Phase 7 — Requests (unknown consent)
-- [ ] `RequestsDrawer`: list unknown-consent senders; Accept (→ allowed, optionally add contact) / Block.
+- [x] `RequestsDrawer`: list unknown-consent senders; Accept (→ allowed, optionally add contact) / Block.
 - **Done when (FR-21):** a message from an unknown wallet doesn't pollute contact threads and can be accepted/blocked.
 
 ## Phase 8 — Hardening

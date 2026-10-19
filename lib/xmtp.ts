@@ -1,4 +1,4 @@
-import { Client, IdentifierKind, ConsentState, type Dm } from "@xmtp/browser-sdk";
+import { Client, IdentifierKind, ConsentEntityType, ConsentState, type Dm } from "@xmtp/browser-sdk";
 import { ChatCodeCodec } from "./codec";
 import type { Address, AppPayload } from "./types";
 
@@ -37,4 +37,31 @@ export async function peerInboxOf(client: Client, conversationId: string): Promi
   const convo = await client.conversations.getConversationById(conversationId);
   if (!convo) return undefined;
   return (convo as Dm).peerInboxId();
+}
+
+/** Read the consent state we hold for a given peer inbox id. */
+export async function consentOf(client: Client, inboxId: string): Promise<ConsentState> {
+  return client.preferences.getConsentState(ConsentEntityType.InboxId, inboxId);
+}
+
+/**
+ * Resolve the 0x address behind a peer inbox id, using the inbox's recovery
+ * identifier. Returns undefined for non-EVM identities.
+ */
+export async function addressOfInbox(client: Client, inboxId: string): Promise<Address | undefined> {
+  const states = await client.preferences.getInboxStates([inboxId]);
+  const recovery = states[0]?.recoveryIdentifier;
+  if (!recovery || recovery.identifierKind !== IdentifierKind.Ethereum) return undefined;
+  return recovery.identifier.toLowerCase() as Address;
+}
+
+/** Allow or block a peer inbox id. */
+export async function setConsent(
+  client: Client,
+  inboxId: string,
+  state: ConsentState,
+): Promise<void> {
+  await client.preferences.setConsentStates([
+    { entityType: ConsentEntityType.InboxId, state, entity: inboxId },
+  ]);
 }

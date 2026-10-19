@@ -35,3 +35,12 @@ export interface ChatItem {
   status?: "pending" | "failed";
   payload: AppPayload;
 }
+
+/** An inbound conversation from a sender we have not allowed yet (FR-21). */
+export interface ChatRequest {
+  peerInboxId: string;
+  conversationId: string;
+  preview: string;         // latest app-payload text, for display only
+  at: number;              // ms, network time of the latest message
+  count: number;           // number of app-payload messages seen
+}
