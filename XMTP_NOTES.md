@@ -81,6 +81,13 @@ Deviations from REFERENCE_IMPLEMENTATION.md (adapt inside lib/xmtp.ts; all noted
 2. streamAllMessages public API is async-iterator/options style (AsyncStreamProxy, stream.end()), NOT callback/StreamCloser. Reference usage (onValue/onError + stream.end()) is compatible; no code change needed, just confirm options-based call.
 3. fetchInboxIdByIdentifier, createDmWithIdentifier, peerInboxId(), close(), canMessage, setConsentStates/updateConsentState all confirmed present — reference calls type-check against 7.1.0 with no signature changes.
 
+Additional behaviours confirmed by reading the installed SDK source (node_modules/@xmtp/browser-sdk/src/):
+4. createStream starts the stream EAGERLY when the promise resolves — onValue/onError fire without ever iterating the AsyncStreamProxy. Consuming the proxy is optional. Verified in src/utils/streams.ts (streamFunction is invoked at creation, not on first next()).
+5. The SDK has its OWN internal retry: StreamOptions.retryAttempts defaults to 6 and retryDelay to 10s, enabled by default (retryOnFail: true). Consequence: with defaults a failed stream is silently retried by the SDK and onError is never called, so an app-level backoff+resync would never run. hooks/useChat.ts therefore sets retryOnFail: false and triggers its own reconnect from BOTH onFail and onError, keeping FR-23 (exponential backoff 1s→30s, then resync) authoritative and avoiding duplicate concurrent streams.
+6. A worker-level "stream.fail" action surfaces through the onFail callback (src/utils/WorkerBridge.ts), while a message-level error surfaces through onError. Both must be handled for reliable reconnects.
+7. FR-3 (no new signature on reload) confirmed in source: Client.create() calls register(), which asks the WASM for signature text; when the inbox is already registered in the local DB the signature text is absent and register() returns early WITHOUT calling signMessage. No extra wallet prompt on reload.
+8. Consent is per inbox id: preferences.setConsentStates([{ entityType: ConsentEntityType.InboxId, state, entity: inboxId }]) and preferences.getConsentState(ConsentEntityType.InboxId, inboxId). ConsentState.Unknown=0, Allowed=1, Denied=2.
+
 Task-order deviation: `lib/xmtp.ts` (the XMTP adapter, nominally Phase 4) was created in Phase 3 because `ContactManager` needs `canReach()` (static pre-client reach check) and `getInboxId()` to satisfy FR-8 / AC-6. All version-sensitive SDK calls remain consolidated in `lib/xmtp.ts` per ARCHITECTURE §5; Phase 4 will only wire the remaining adapter functions (`sendPayload`, `peerInboxOf`) into `useChat`.
 
 Next step: throwaway client-component page importing Client from @xmtp/browser-sdk must build (WASM/worker bundling). See Bundler notes.

@@ -61,6 +61,11 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 
 ## Phase 9 — Manual two-wallet acceptance test
 Use two browsers (or one normal + one private window) with two different wallets.
+> **Status: requires manual execution with two real wallets.** The steps below cannot be automated
+> (they need two signing wallets, two browser profiles, and a live XMTP network). Everything that
+> *can* be verified automatically has been: `npm run build` passes, no DB/ORM packages, the app
+> boots and hydrates in a headless browser with **zero console errors**, the deep-link "Add contact?"
+> prompt renders and requires explicit confirmation, and the wallet connector list is de-duplicated.
 1. A & B connect and enable messaging (note signature counts). Reload both.
 2. A adds B (alias "Bob"); B adds A (alias "Alice"). Confirm aliases are private.
 3. A sends 10 messages under `ORDER-1`, 3 under `ORDER-2`. Confirm no wallet prompts; B sees correct tabs live.

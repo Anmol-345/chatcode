@@ -106,6 +106,7 @@ export function useChat(client: Client | null) {
     let stream: AsyncStreamProxy<DecodedMessage> | undefined;
     let cancelled = false;
     let attempt = 0;
+    let reconnecting = false;
 
     const run = async () => {
       try {
@@ -118,15 +119,22 @@ export function useChat(client: Client | null) {
           consentStates: VISIBLE,
           onValue: (m: DecodedMessage) => void ingest(m),
           onError: () => reconnect(),
+          onFail: () => reconnect(),
+          // We own the reconnect + resync loop (FR-23). The SDK's built-in retry
+          // would otherwise swallow failures (6 x 10s) and never resync.
+          retryOnFail: false,
         });
         attempt = 0;
+        reconnecting = false;
       } catch {
         reconnect();
       }
     };
 
     const reconnect = () => {
-      if (cancelled) return;
+      if (cancelled || reconnecting) return;
+      reconnecting = true;
+      // Close the dead stream so the worker stops publishing to it.
       void stream?.end();
       const delay = Math.min(30_000, 1000 * 2 ** attempt++);
       setTimeout(() => !cancelled && void run(), delay);

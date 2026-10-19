@@ -1,4 +1,5 @@
 "use client";
+import { useMemo } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useXmtp } from "@/hooks/useXmtp";
 
@@ -7,6 +8,17 @@ export function ConnectBar() {
   const { connect, connectors, isPending: connectPending, error: connectError } = useConnect();
   const { disconnect, isPending: disconnectPending } = useDisconnect();
   const { status, error: xmtpError, init } = useXmtp();
+
+  // wagmi's EIP-6963 discovery can surface the same wallet more than once
+  // (duplicate connector ids). De-duplicate by id so each wallet is listed once.
+  const uniqueConnectors = useMemo(() => {
+    const seen = new Set<string>();
+    return connectors.filter((c) => {
+      if (seen.has(c.id)) return false;
+      seen.add(c.id);
+      return true;
+    });
+  }, [connectors]);
 
   const isReady = status === "ready";
   const isInitializing = status === "initializing";
@@ -19,9 +31,9 @@ export function ConnectBar() {
             Not connected
           </span>
           <div className="flex flex-wrap gap-2">
-            {connectors.map((connector) => (
+            {uniqueConnectors.map((connector) => (
               <button
-                key={connector.id}
+                key={connector.uid}
                 onClick={() => connect({ connector })}
                 disabled={connectPending || isReconnecting}
                 className="inline-flex items-center gap-2 rounded-md border border-surface-outline px-3 py-1.5 text-body-sm text-on-surface hover:bg-surface-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

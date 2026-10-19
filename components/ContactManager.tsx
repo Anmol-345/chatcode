@@ -37,43 +37,47 @@ export function ContactManager({ onSelect }: ContactManagerProps = {}) {
     const raw = input.trim();
     if (!raw) return;
 
-    let address: Address | null = null;
-    if (isAddress(raw)) {
-      address = getAddress(raw) as Address;
-    } else if (raw.includes(".")) {
-      const resolved = await resolveAddress(raw);
-      if (!resolved) {
-        setError("ENS name could not be resolved.");
+    try {
+      let address: Address | null = null;
+      if (isAddress(raw)) {
+        address = getAddress(raw) as Address;
+      } else if (raw.includes(".")) {
+        const resolved = await resolveAddress(raw);
+        if (!resolved) {
+          setError("ENS name could not be resolved.");
+          return;
+        }
+        address = resolved;
+      } else {
+        setError("Enter a 0x address or ENS name.");
         return;
       }
-      address = resolved;
-    } else {
-      setError("Enter a 0x address or ENS name.");
-      return;
-    }
 
-    const key = address.toLowerCase() as Address;
-    const reachable = await canReach(address);
+      const key = address.toLowerCase() as Address;
+      const reachable = await canReach(address);
 
-    let inboxId: string | undefined;
-    if (client && status === "ready") {
-      try {
-        inboxId = await getInboxId(client, key);
-      } catch {
-        // inbox lookup is non-fatal
+      let inboxId: string | undefined;
+      if (client && status === "ready") {
+        try {
+          inboxId = await getInboxId(client, key);
+        } catch {
+          // inbox lookup is non-fatal
+        }
       }
+
+      upsert({
+        address: key,
+        alias: alias.trim() || raw,
+        reachable,
+        ...(inboxId ? { inboxId } : {}),
+      });
+
+      setInput("");
+      setAlias("");
+      setInviteFor(reachable ? null : key);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to add contact.");
     }
-
-    upsert({
-      address: key,
-      alias: alias.trim() || raw,
-      reachable,
-      ...(inboxId ? { inboxId } : {}),
-    });
-
-    setInput("");
-    setAlias("");
-    setInviteFor(reachable ? null : key);
   }, [input, alias, client, status, upsert]);
 
   const handleSaveEdit = useCallback(
