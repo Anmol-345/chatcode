@@ -1,26 +1,258 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --primary: #0055ce;
+    --primary-container: #2f6fed;
+    --on-primary: #ffffff;
+    --on-primary-container: #ffffff;
+    --primary-fixed: #dae2ff;
+    --primary-fixed-dim: #b1c5ff;
+    --on-primary-fixed: #001847;
+    --on-primary-fixed-variant: #0040a0;
+
+    --secondary: #5f5e5e;
+    --secondary-container: #e5e2e1;
+    --on-secondary: #ffffff;
+    --on-secondary-container: #656464;
+    --secondary-fixed: #e5e2e1;
+    --secondary-fixed-dim: #c9c6c5;
+    --on-secondary-fixed: #1c1b1b;
+    --on-secondary-fixed-variant: #474646;
+
+    --tertiary: #9d4200;
+    --tertiary-container: #c45400;
+    --on-tertiary: #ffffff;
+    --on-tertiary-container: #ffffff;
+    --tertiary-fixed: #ffdbcb;
+    --tertiary-fixed-dim: #ffb691;
+    --on-tertiary-fixed: #341100;
+    --on-tertiary-fixed-variant: #793100;
+
+    --error: #ba1a1a;
+    --error-container: #ffdad6;
+    --on-error: #ffffff;
+    --on-error-container: #93000a;
+
+    --background: #f9f9f9;
+    --on-background: #1a1c1c;
+
+    --surface: #f9f9f9;
+    --surface-dim: #dadada;
+    --surface-bright: #f9f9f9;
+    --surface-variant: #e2e2e2;
+    --on-surface: #1a1c1c;
+    --on-surface-variant: #424654;
+
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f3f3f4;
+    --surface-container: #eeeeee;
+    --surface-container-high: #e8e8e8;
+    --surface-container-highest: #e2e2e2;
+
+    --inverse-surface: #2f3131;
+    --inverse-on-surface: #f0f1f1;
+    --inverse-primary: #b1c5ff;
+
+    --outline: #737786;
+    --outline-variant: #c2c6d7;
+    --surface-tint: #0056d0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--surface-container-lowest);
+    color: var(--on-surface);
+    overscroll-behavior: none;
+    font-family: var(--font-inter, Inter, sans-serif);
+  }
+
+  main > :first-child {
+    margin-top: 0 !important;
+  }
+
+  main > :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme {
+  --color-primary: #0055ce;
+  --color-primary-container: #2f6fed;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #dae2ff;
+  --color-primary-fixed-dim: #b1c5ff;
+  --color-on-primary-fixed: #001847;
+  --color-on-primary-fixed-variant: #0040a0;
+
+  --color-secondary: #5f5e5e;
+  --color-secondary-container: #e5e2e1;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #656464;
+  --color-secondary-fixed: #e5e2e1;
+  --color-secondary-fixed-dim: #c9c6c5;
+  --color-on-secondary-fixed: #1c1b1b;
+  --color-on-secondary-fixed-variant: #474646;
+
+  --color-tertiary: #9d4200;
+  --color-tertiary-container: #c45400;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #ffffff;
+  --color-tertiary-fixed: #ffdbcb;
+  --color-tertiary-fixed-dim: #ffb691;
+  --color-on-tertiary-fixed: #341100;
+  --color-on-tertiary-fixed-variant: #793100;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  --color-background: #f9f9f9;
+  --color-on-background: #1a1c1c;
+
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-variant: #e2e2e2;
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #424654;
+
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f3f4;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+
+  --color-inverse-surface: #2f3131;
+  --color-inverse-on-surface: #f0f1f1;
+  --color-inverse-primary: #b1c5ff;
+
+  --color-outline: #737786;
+  --color-outline-variant: #c2c6d7;
+  --color-surface-tint: #0056d0;
+
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 0.75rem;
+  --spacing-margin: 1.5rem;
+  --spacing-margin-mobile: 1rem;
+}
+
+/* Custom font utilities for Stitch typography scale */
+.font-headline-xl,
+.font-headline-lg,
+.font-headline-md,
+.font-headline-sm,
+.font-headline-xl-mobile,
+.font-headline-lg-mobile {
+  font-family: var(--font-space-grotesk, 'Space Grotesk', sans-serif);
+}
+
+.font-body-lg,
+.font-body-md,
+.font-body-sm {
+  font-family: var(--font-inter, 'Inter', sans-serif);
+}
+
+.font-label-code-lg,
+.font-label-code-md,
+.font-label-code-sm {
+  font-family: var(--font-jetbrains-mono, 'JetBrains Mono', monospace);
+}
+
+.text-headline-xl {
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+.text-headline-lg {
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.text-headline-md {
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+.text-headline-sm {
+  font-size: 20px;
+  line-height: 26px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.text-body-lg {
+  font-size: 18px;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+.text-body-md {
+  font-size: 15px;
+  line-height: 22px;
+  letter-spacing: -0.005em;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+
+.text-label-code-lg {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+.text-label-code-md {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+.text-label-code-sm {
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .text-headline-xl {
+    font-size: 32px;
+    line-height: 38px;
+    letter-spacing: -0.02em;
+  }
+  .text-headline-lg {
+    font-size: 26px;
+    line-height: 32px;
+    letter-spacing: -0.01em;
+  }
 }
