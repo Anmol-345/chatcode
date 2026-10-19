@@ -42,10 +42,10 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when (AC-3, FR-18, 19, 22, 23):** two browsers exchange messages under different codes in real time.
 
 ## Phase 6 — Chat code UI
-- [ ] `ChatCodeSwitcher` (codes from thread + `GENERAL` + create new, count + avg score).
-- [ ] `MessagePanel` (filter by active code; distinct feedback rendering; pending/failed states).
-- [ ] `FeedbackForm`.
-- [ ] `app/page.tsx` composition; deep-link prompt (FR-15) with explicit confirm.
+- [x] `ChatCodeSwitcher` (codes from thread + `GENERAL` + create new, count + avg score).
+- [x] `MessagePanel` (filter by active code; distinct feedback rendering; pending/failed states).
+- [x] `FeedbackForm`.
+- [x] `app/page.tsx` composition; deep-link prompt (FR-15) with explicit confirm.
 - **Done when (AC-3, AC-4, AC-8, FR-12..17, 20):** per-code organization works end-to-end.
 
 ## Phase 7 — Requests (unknown consent)

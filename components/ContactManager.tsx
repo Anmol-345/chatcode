@@ -8,7 +8,12 @@ import { canReach, getInboxId } from "@/lib/xmtp";
 import { buildInviteLink } from "@/lib/invite";
 import type { Address, Contact } from "@/lib/types";
 
-export function ContactManager() {
+export interface ContactManagerProps {
+  /** Called when a contact row is selected (not edit/delete). */
+  onSelect?: (contact: Contact) => void;
+}
+
+export function ContactManager({ onSelect }: ContactManagerProps = {}) {
   const {
     contacts,
     hydrated,
@@ -170,7 +175,13 @@ export function ContactManager() {
               const reachable = c.reachable === true;
               const isEditing = editing?.address === c.address;
               return (
-                <li key={c.address} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 rounded border border-gray-100">
+                <li
+                  key={c.address}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 rounded border border-gray-100 cursor-pointer hover:bg-gray-50"
+                  onClick={(e) => {
+                    if (!(e.target as HTMLElement).closest("button")) onSelect?.(c);
+                  }}
+                >
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <span className="text-sm font-medium text-gray-900">{label(c.address)}</span>
                     <span className="text-xs text-gray-500 truncate max-w-xs">{isShort(c.address)}</span>
