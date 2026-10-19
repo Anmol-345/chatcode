@@ -17,9 +17,10 @@ export function useContacts() {
 
   // Hydrate after mount to avoid SSR mismatch, then sync across tabs.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    /* eslint-disable react-hooks/set-state-in-effect -- hydrate from localStorage after mount */
     setBook(load());
     setHydrated(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
     const onStorage = (e: StorageEvent) => {
       if (e.key === KEY) setBook(load());
     };

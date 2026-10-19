@@ -26,14 +26,13 @@ export function XmtpProvider({ children }: { children: React.ReactNode }) {
   // Wallet changed or disconnected → tear everything down (FR-4).
   // Intentionally resets React state here so the UI reflects the teardown.
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- intentional full reset on wallet change (FR-4) */
     clientRef.current?.close();
     clientRef.current = null;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setClient(null);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStatus("idle");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [address]);
 
   const init = useCallback(async () => {

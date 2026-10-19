@@ -21,10 +21,10 @@ export function DeepLinkPrompt({ onConfirm, onCancel }: DeepLinkPromptProps) {
   useEffect(() => {
     const { peer, code } = parseInviteParams(searchParams.toString());
     if (peer || code) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      /* eslint-disable react-hooks/set-state-in-effect -- surface the deep-link prompt after mount */
       setDeepLink({ peer, code });
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [searchParams]);
 

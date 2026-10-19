@@ -97,10 +97,10 @@ export function useChat(client: Client | null) {
 
   // ---- history + live stream with exponential backoff reconnect ----
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    /* eslint-disable react-hooks/set-state-in-effect -- reset chat state when the client changes */
     setItems(new Map());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRequests(new Map());
+    /* eslint-enable react-hooks/set-state-in-effect */
     convCache.current.clear();
     if (!client) return;
     let stream: AsyncStreamProxy<DecodedMessage> | undefined;
