@@ -36,9 +36,9 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when:** a message sent from wallet A can be seen in `xmtp.chat` for wallet B (or via Phase 5).
 
 ## Phase 5 — History, streaming, ingest
-- [ ] `useChat`: `syncAll` → list DMs → load messages → open stream → `ingest` with validation + dedupe + peer resolution.
-- [ ] Reconnect with exponential backoff + resync; cleanup on unmount/client change.
-- [ ] Pure selectors `codesFor`, `effectiveFeedback` + Vitest tests.
+- [x] `useChat`: `syncAll` → list DMs → load messages → open stream → `ingest` with validation + dedupe + peer resolution.
+- [x] Reconnect with exponential backoff + resync; cleanup on unmount/client change.
+- [x] Pure selectors `codesFor`, `effectiveFeedback` + Vitest tests.
 - **Done when (AC-3, FR-18, 19, 22, 23):** two browsers exchange messages under different codes in real time.
 
 ## Phase 6 — Chat code UI
