@@ -31,8 +31,8 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when (AC-5, AC-6, AC-7, FR-6..11):** contacts persist across reload; ENS resolves; unreachable address handled.
 
 ## Phase 4 — XMTP adapter & sending
-- [ ] `lib/xmtp.ts`: `canReach`, `getInboxId`, `sendPayload`, `peerInboxOf`, consent helpers (using verified API).
-- [ ] `hooks/useChat.ts` send functions (`sendText`, `sendFeedback`) with optimistic `pending` → confirmed/`failed` + retry.
+- [x] `lib/xmtp.ts`: `canReach`, `getInboxId`, `sendPayload`, `peerInboxOf`, consent helpers (`VISIBLE`) (using verified API).
+- [x] `hooks/useChat.ts` send functions (`sendText`, `sendFeedback`) with optimistic `pending` → confirmed/`failed` + retry.
 - **Done when:** a message sent from wallet A can be seen in `xmtp.chat` for wallet B (or via Phase 5).
 
 ## Phase 5 — History, streaming, ingest
