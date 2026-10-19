@@ -81,5 +81,7 @@ Deviations from REFERENCE_IMPLEMENTATION.md (adapt inside lib/xmtp.ts; all noted
 2. streamAllMessages public API is async-iterator/options style (AsyncStreamProxy, stream.end()), NOT callback/StreamCloser. Reference usage (onValue/onError + stream.end()) is compatible; no code change needed, just confirm options-based call.
 3. fetchInboxIdByIdentifier, createDmWithIdentifier, peerInboxId(), close(), canMessage, setConsentStates/updateConsentState all confirmed present — reference calls type-check against 7.1.0 with no signature changes.
 
+Task-order deviation: `lib/xmtp.ts` (the XMTP adapter, nominally Phase 4) was created in Phase 3 because `ContactManager` needs `canReach()` (static pre-client reach check) and `getInboxId()` to satisfy FR-8 / AC-6. All version-sensitive SDK calls remain consolidated in `lib/xmtp.ts` per ARCHITECTURE §5; Phase 4 will only wire the remaining adapter functions (`sendPayload`, `peerInboxOf`) into `useChat`.
+
 Next step: throwaway client-component page importing Client from @xmtp/browser-sdk must build (WASM/worker bundling). See Bundler notes.
 ```

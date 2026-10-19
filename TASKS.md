@@ -24,10 +24,10 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when (AC-1, FR-1..5):** connect → single signature → "ready"; reload behavior verified and documented in XMTP_NOTES; switching account resets.
 
 ## Phase 3 — Contacts
-- [ ] `hooks/useContacts.ts` (hydrate after mount, upsert/remove/label, cross-tab sync, export/import with validation).
-- [ ] `lib/ens.ts` (`resolveAddress`, optional reverse lookup).
-- [ ] `components/ContactManager.tsx` (add by 0x/ENS + alias, edit alias, delete, reachability check + invite hint, export/import).
-- [ ] `lib/invite.ts`: `buildInviteLink(address, code?)`, `parseInviteParams(search)`.
+- [x] `hooks/useContacts.ts` (hydrate after mount, upsert/remove/label, cross-tab sync, export/import with validation).
+- [x] `lib/ens.ts` (`resolveAddress`, optional reverse lookup).
+- [x] `components/ContactManager.tsx` (add by 0x/ENS + alias, edit alias, delete, reachability check + invite hint, export/import).
+- [x] `lib/invite.ts`: `buildInviteLink(address, code?)`, `parseInviteParams(search)`.
 - **Done when (AC-5, AC-6, AC-7, FR-6..11):** contacts persist across reload; ENS resolves; unreachable address handled.
 
 ## Phase 4 — XMTP adapter & sending
