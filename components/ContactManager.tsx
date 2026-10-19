@@ -141,6 +141,7 @@ export function ContactManager({ onSelect }: ContactManagerProps = {}) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <input
             id="contact-input"
+            aria-label="Contact address or ENS name"
             placeholder="0x address or name.eth"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -148,6 +149,7 @@ export function ContactManager({ onSelect }: ContactManagerProps = {}) {
           />
           <input
             id="contact-alias"
+            aria-label="Contact alias"
             placeholder="Alias (optional)"
             value={alias}
             onChange={(e) => setAlias(e.target.value)}
@@ -198,6 +200,7 @@ export function ContactManager({ onSelect }: ContactManagerProps = {}) {
                     {isEditing ? (
                       <>
                         <input
+                          aria-label={`Alias for ${c.alias}`}
                           value={editing.alias}
                           onChange={(e) => setEditing({ ...editing, alias: e.target.value })}
                           className="rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"

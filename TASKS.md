@@ -53,11 +53,11 @@ Read `AGENTS.md` first. Don't skip Phase 0 verification.
 - **Done when (FR-21):** a message from an unknown wallet doesn't pollute contact threads and can be accepted/blocked.
 
 ## Phase 8 — Hardening
-- [ ] localStorage failure banner + in-memory fallback; corrupt JSON fallback.
-- [ ] Length limits enforced on send & receive; disable send on invalid code.
-- [ ] Empty/loading/error states everywhere; keyboard + label a11y pass.
-- [ ] `grep -rEi "prisma|mongo|postgres|supabase|firebase|sqlite|drizzle|redis" package.json app lib hooks components` returns nothing.
-- [ ] Update `README.md` (setup, run, how chat codes & invite links work, limitations).
+- [x] localStorage failure banner + in-memory fallback; corrupt JSON fallback.
+- [x] Length limits enforced on send & receive; disable send on invalid code.
+- [x] Empty/loading/error states everywhere; keyboard + label a11y pass.
+- [x] `grep -rEi "prisma|mongo|postgres|supabase|firebase|sqlite|drizzle|redis" package.json app lib hooks components` returns nothing.
+- [x] Update `README.md` (setup, run, how chat codes & invite links work, limitations).
 
 ## Phase 9 — Manual two-wallet acceptance test
 Use two browsers (or one normal + one private window) with two different wallets.

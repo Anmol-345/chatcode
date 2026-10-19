@@ -13,6 +13,10 @@ export const ContentTypeChatCode: ContentTypeId = {
 export const normalizeCode = (s: string) => s.trim().toUpperCase().replace(/\s+/g, "-");
 export const isValidCode = (s: string) => /^[A-Z0-9-]{3,32}$/.test(s);
 
+/** Maximum payload sizes (SPEC §6). Enforced on send and on receive. */
+export const MAX_TEXT_LENGTH = 4000;
+export const MAX_COMMENT_LENGTH = 2000;
+
 export function isAppPayload(x: unknown): x is AppPayload {
   if (typeof x !== "object" || x === null) return false;
   const p = x as Record<string, unknown>;
@@ -20,7 +24,7 @@ export function isAppPayload(x: unknown): x is AppPayload {
   if (typeof p.chatCode !== "string" || !isValidCode(p.chatCode)) return false;
   if (typeof p.clientTs !== "number") return false;
   if (p.kind === "message") {
-    return typeof p.text === "string" && p.text.length > 0 && p.text.length <= 4000;
+    return typeof p.text === "string" && p.text.length > 0 && p.text.length <= MAX_TEXT_LENGTH;
   }
   if (p.kind === "feedback") {
     const score = p.score;
@@ -31,7 +35,7 @@ export function isAppPayload(x: unknown): x is AppPayload {
       typeof category === "string" &&
       ["service", "communication", "delivery", "quality", "other"].includes(category) &&
       typeof p.text === "string" &&
-      p.text.length <= 2000
+      p.text.length <= MAX_COMMENT_LENGTH
     );
   }
   return false;

@@ -5,12 +5,16 @@ import type {
   AsyncStreamProxy,
   Client,
   DecodedMessage,
+  Dm,
 } from "@xmtp/browser-sdk";
 import { contentTypesAreEqual } from "@xmtp/content-type-primitives";
 import {
   ChatCodeCodec,
   ContentTypeChatCode,
   isAppPayload,
+  isValidCode,
+  MAX_COMMENT_LENGTH,
+  MAX_TEXT_LENGTH,
   normalizeCode,
 } from "@/lib/codec";
 import { consentOf, createDM, peerInboxOf, setConsent, VISIBLE } from "@/lib/xmtp";
@@ -138,7 +142,15 @@ export function useChat(client: Client | null) {
   // ---- send with optimistic pending -> confirmed/failed + retry ----
   const send = useCallback(async (to: Address, payload: AppPayload) => {
     if (!client) throw new Error("XMTP client not ready");
-    const { dm, peerInboxId } = await createDM(client, to);
+    let dm: Dm;
+    let peerInboxId: string;
+    try {
+      ({ dm, peerInboxId } = await createDM(client, to));
+    } catch {
+      throw new Error(
+        "This address isn't on XMTP yet. Ask them to enable messaging, or share an invite link.",
+      );
+    }
     const tempId = `opt-${Date.now()}-${++counter.current}`;
     recipientById.current.set(tempId, to);
     const optimistic: ChatItem = {
@@ -173,14 +185,20 @@ export function useChat(client: Client | null) {
   }, [client]);
 
   const sendText = useCallback(
-    (to: Address, code: string, text: string) =>
-      send(to, {
+    (to: Address, code: string, text: string) => {
+      const chatCode = normalizeCode(code);
+      if (!isValidCode(chatCode)) throw new Error("Invalid chat code");
+      if (!text) throw new Error("Message cannot be empty");
+      if (text.length > MAX_TEXT_LENGTH)
+        throw new Error(`Message is too long (max ${MAX_TEXT_LENGTH} characters)`);
+      return send(to, {
         v: 1,
         kind: "message",
-        chatCode: normalizeCode(code),
+        chatCode,
         text,
         clientTs: Date.now(),
-      }),
+      });
+    },
     [send],
   );
 
@@ -191,16 +209,21 @@ export function useChat(client: Client | null) {
       score: 1 | 2 | 3 | 4 | 5,
       category: FeedbackCategory,
       text: string,
-    ) =>
-      send(to, {
+    ) => {
+      const chatCode = normalizeCode(code);
+      if (!isValidCode(chatCode)) throw new Error("Invalid chat code");
+      if (text.length > MAX_COMMENT_LENGTH)
+        throw new Error(`Comment is too long (max ${MAX_COMMENT_LENGTH} characters)`);
+      return send(to, {
         v: 1,
         kind: "feedback",
-        chatCode: normalizeCode(code),
+        chatCode,
         score,
         category,
         text,
         clientTs: Date.now(),
-      }),
+      });
+    },
     [send],
   );
 

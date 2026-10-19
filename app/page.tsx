@@ -20,6 +20,7 @@ export default function Page() {
 
   const [activeContact, setActiveContact] = useState<Contact | undefined>(undefined);
   const [activeCode, setActiveCode] = useState<string>("GENERAL");
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const { items, requests, sendText, sendFeedback, retry, acceptRequest, blockRequest } = useChat(client);
 
@@ -51,7 +52,15 @@ export default function Page() {
   const handleSendText = useCallback(
     (text: string) => {
       if (!activeContact || !client) return;
-      sendText(activeContact.address, activeCode, text);
+      setSendError(null);
+      try {
+        const p = sendText(activeContact.address, activeCode, text);
+        void p.catch((e: unknown) =>
+          setSendError(e instanceof Error ? e.message : "Failed to send message"),
+        );
+      } catch (e: unknown) {
+        setSendError(e instanceof Error ? e.message : "Failed to send message");
+      }
     },
     [activeContact, activeCode, client, sendText],
   );
@@ -59,14 +68,36 @@ export default function Page() {
   const handleSendFeedback = useCallback(
     (score: number, category: FeedbackCategory, text: string) => {
       if (!activeContact || !client) return;
-      sendFeedback(activeContact.address, activeCode, score as 1 | 2 | 3 | 4 | 5, category, text);
+      setSendError(null);
+      try {
+        const p = sendFeedback(
+          activeContact.address,
+          activeCode,
+          score as 1 | 2 | 3 | 4 | 5,
+          category,
+          text,
+        );
+        void p.catch((e: unknown) =>
+          setSendError(e instanceof Error ? e.message : "Failed to send feedback"),
+        );
+      } catch (e: unknown) {
+        setSendError(e instanceof Error ? e.message : "Failed to send feedback");
+      }
     },
     [activeContact, activeCode, client, sendFeedback],
   );
 
   const handleRetry = useCallback(
     (item: ChatItem) => {
-      retry(item);
+      setSendError(null);
+      try {
+        const p = retry(item);
+        void p.catch((e: unknown) =>
+          setSendError(e instanceof Error ? e.message : "Failed to resend message"),
+        );
+      } catch (e: unknown) {
+        setSendError(e instanceof Error ? e.message : "Failed to resend message");
+      }
     },
     [retry],
   );
@@ -134,13 +165,22 @@ export default function Page() {
               </h2>
               <ChatCodeSwitcher codes={codes} active={activeCode} onChange={setActiveCode} />
             </div>
-            <MessagePanel
-              items={peerItems}
-              activeCode={activeCode}
-              onSendText={handleSendText}
-              onSendFeedback={handleSendFeedback}
-              onRetry={handleRetry}
-            />
+            {activeContact ? (
+              <MessagePanel
+                items={peerItems}
+                activeCode={activeCode}
+                onSendText={handleSendText}
+                onSendFeedback={handleSendFeedback}
+                onRetry={handleRetry}
+                error={sendError}
+              />
+            ) : (
+              <div className="flex-1 flex items-center justify-center p-8">
+                <p className="text-sm text-gray-500">
+                  Select a contact on the left to start chatting.
+                </p>
+              </div>
+            )}
           </main>
           <RequestsDrawer
             requests={requests}
