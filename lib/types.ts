@@ -33,6 +33,8 @@ export interface ChatItem {
   mine: boolean;
   sentAt: number;          // ms, from network timestamp (sentAtNs / 1e6)
   status?: "pending" | "failed";
+  onChainTx?: string;
+  onChainBlock?: number;
   payload: AppPayload;
 }
 
